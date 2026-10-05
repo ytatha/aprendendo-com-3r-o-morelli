@@ -1,1 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 Matemática Espacial
+6º Ano</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap&quot; rel="stylesheet">
+</head>
+<body>
+<div class="estrelas" id="estrelas"></div>
 
+<header class="cabecalho">
+<h1>🚀 Matemática Espacial</h1>
+<p class="subtitulo">Uma aventura pelos números!</p>
+</header>
+<main class="container">
+<!
+-TELA INICIAL -->
+<section id="tela-inicio" class="tela ativa">
+<div class="card-inicio">
+<div class="astro-grande">👨‍🚀</div>
+<h2>Bem-vindo, Astronauta!</h2>
+<p>Você foi escolhido para uma missão especial: <strong>salvar a galáxia dos números!</strong></p>
+<p>Responda 10 desafios matemáticos para completar sua missão.</p>
+
+<div class="regras">
+<h3>📋 Como Jogar:</h3>
+<ul>
+<li>🎯 Responda as perguntas corretamente</li>
+<li>❤️ Você tem 3 vidas</li>
+<li>⭐ Cada acerto vale 10 pontos</li>
+<li>🏆 Acerte tudo e ganhe a medalha espacial!</li>
+</ul>
+</div>
+<button id="btn-comecar" class="btn-principal">🚀 INICIAR MISSÃO</button>
+</div>
+</section>
+
+<!
+-TELA DO JOGO -->
+<section id="tela-jogo" class="tela">
+<div class="painel-info">
+<div class="info-box">
+<span class="icone">❓</span>
+<span>Pergunta: <strong id="num-pergunta">1</strong>/10</span>
+</div>
+<div class="info-box">
+<span class="icone">⭐</span>
+<span>Pontos: <strong id="pontos">0</strong></span>
+</div>
+<div class="info-box">
+<span class="icone">❤️</span>
+<span id="vidas">❤️❤️❤️</span>
+</div>
+</div>
+<div class="barra-progresso">
+<div class="progresso" id="progresso"></div>
+</div>
+
+<div class="card-pergunta">
+<div class="astro-pequeno" id="astro-emoji">👨‍🚀</div>
+<h2 id="pergunta">Carregando pergunta...</h2>
+<div class="opcoes" id="opcoes"></div>
+<div id="feedback" class="feedback"></div>
+</div>
+</section>
+
+<!
+-TELA FINAL -->
+<section id="tela-final" class="tela">
+<div class="card-final">
+<div id="emoji-final" class="emoji-final">🏆</div>
+<h2 id="titulo-final">Parabéns!</h2>
+<p id="mensagem-final"></p>
+<div class="resultado-final">
+<div class="resultado-box">
+<span>⭐</span>
+<strong id="pontos-finais">0</strong>
+<small>Pontos</small>
+</div>
+<div class="resultado-box">
+<span>✅</span>
+<strong id="acertos-finais">0</strong>
+<small>Acertos</small>
+</div>
+<div class="resultado-box">
+<span>🎯</span>
+<strong id="precisao-final">0%</strong>
+<small>Precisão</small>
+</div>
+</div>
+<button id="btn-reiniciar" class="btn-principal">🔄 JOGAR NOVAMENTE</button>
+</div>
+</section>
+</main>
+<footer class="rodape">
+<p>🌟 Projeto Educacional
+6º Ano do Ensino Fundamental 🌟</p>
+<p>Disciplina: Matemática | Tema: Operações e Números</p>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
