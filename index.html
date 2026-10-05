@@ -3,102 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🚀 Matemática Espacial
-6º Ano</title>
+<title>🌱 Exploradores Botânicos
+Jogo Educativo de Ciências</title>
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap&quot; rel="stylesheet">
 </head>
 <body>
-<div class="estrelas" id="estrelas"></div>
-
-<header class="cabecalho">
-<h1>🚀 Matemática Espacial</h1>
-<p class="subtitulo">Uma aventura pelos números!</p>
+<header class="game-header">
+<h1>🌱 Exploradores Botânicos</h1>
+<div class="hud">
+<div class="hud-item">⭐ Pontos: <span id="pontos">0</span></div>
+<div class="hud-item">❤️ Vidas: <span id="vidas">3</span></div>
+<div class="hud-item">📖 Fase: <span id="faseAtual">1</span>
+<span id="faseNome">Fácil</span></div>
+</div>
 </header>
-<main class="container">
+<main>
 <!
 -TELA INICIAL -->
-<section id="tela-inicio" class="tela ativa">
-<div class="card-inicio">
-<div class="astro-grande">👨‍🚀</div>
-<h2>Bem-vindo, Astronauta!</h2>
-<p>Você foi escolhido para uma missão especial: <strong>salvar a galáxia dos números!</strong></p>
-<p>Responda 10 desafios matemáticos para completar sua missão.</p>
-
-<div class="regras">
-<h3>📋 Como Jogar:</h3>
-<ul>
-<li>🎯 Responda as perguntas corretamente</li>
-<li>❤️ Você tem 3 vidas</li>
-<li>⭐ Cada acerto vale 10 pontos</li>
-<li>🏆 Acerte tudo e ganhe a medalha espacial!</li>
-</ul>
+<section id="telaInicial" class="tela ativa">
+<div class="card-inicial">
+<h2>Bem-vindo, Jovem Botânico! 🌿</h2>
+<p>Embarque em uma aventura pelo mundo das plantas! Explore mapas, complete missões e torne-se um mestre da botânica.</p>
+<div class="personagem-preview">
+<div class="personagem-grande">🧑‍🔬</div>
 </div>
-<button id="btn-comecar" class="btn-principal">🚀 INICIAR MISSÃO</button>
+<button id="btnIniciar" class="btn-principal">▶ Começar Aventura</button>
+<button id="btnInstrucoes" class="btn-secundario">📜 Como Jogar</button>
 </div>
 </section>
-
+<!
+-TELA DE INSTRUÇÕES -->
+<section id="telaInstrucoes" class="tela">
+<div class="card-inicial">
+<h2>📜 Como Jogar</h2>
+<ul class="lista-instrucoes">
+<li>🚶 Use as <strong>setas do teclado</strong> (ou WASD) para mover seu personagem pelo mapa.</li>
+<li>✨ Ao chegar perto de um <strong>objeto brilhante</strong>, aperte <strong>ESPAÇO</strong> para interagir.</li>
+<li>❓ Cada missão traz um <strong>desafio de Ciências</strong> sobre as plantas.</li>
+<li>✅ Acerte para ganhar <strong>pontos</strong> e liberar a próxima região!</li>
+<li>❤️ Você tem <strong>3 vidas</strong>. Errar faz perder uma vida!</li>
+<li>🏆 Complete as 3 fases para se tornar um <strong>Mestre Botânico</strong>!</li>
+</ul>
+<button id="btnVoltarInicial" class="btn-principal">↩ Voltar</button>
+</div>
+</section>
 <!
 -TELA DO JOGO -->
-<section id="tela-jogo" class="tela">
-<div class="painel-info">
-<div class="info-box">
-<span class="icone">❓</span>
-<span>Pergunta: <strong id="num-pergunta">1</strong>/10</span>
+<section id="telaJogo" class="tela">
+<div class="game-container">
+<div id="mapa" class="mapa">
+<div id="personagem" class="personagem">🧑‍🔬</div>
+<!
+-Objetos de missão serão inseridos via JS -->
 </div>
-<div class="info-box">
-<span class="icone">⭐</span>
-<span>Pontos: <strong id="pontos">0</strong></span>
+<div class="controles-mobile">
+<button class="btn-dir" data-dir="up">▲</button>
+<div class="linha-meio">
+<button class="btn-dir" data-dir="left">◀</button>
+<button class="btn-dir" data-dir="down">▼</button>
+<button class="btn-dir" data-dir="right">▶</button>
 </div>
-<div class="info-box">
-<span class="icone">❤️</span>
-<span id="vidas">❤️❤️❤️</span>
+<button id="btnInteragirMobile" class="btn-interagir-mobile">✨ Interagir</button>
 </div>
 </div>
-<div class="barra-progresso">
-<div class="progresso" id="progresso"></div>
+<div id="dicaMissao" class="dica-missao">
+💡 Explore o mapa até encontrar o objeto brilhante!
 </div>
-
+</section>
+<!
+-TELA DE PERGUNTA -->
+<section id="telaPergunta" class="tela tela-overlay">
 <div class="card-pergunta">
-<div class="astro-pequeno" id="astro-emoji">👨‍🚀</div>
-<h2 id="pergunta">Carregando pergunta...</h2>
-<div class="opcoes" id="opcoes"></div>
+<div class="missao-badge" id="missaoBadge">Missão 1</div>
+<h2 id="perguntaTitulo">Pergunta</h2>
+<p id="perguntaTexto">Texto da pergunta...</p>
+<div id="alternativas" class="alternativas"></div>
 <div id="feedback" class="feedback"></div>
 </div>
 </section>
-
+<!
+-TELA DE CONCLUSÃO DE FASE -->
+<section id="telaFaseCompleta" class="tela tela-overlay">
+<div class="card-pergunta">
+<h2>🎉 Fase Concluída!</h2>
+<p id="msgFaseCompleta">Você completou esta fase!</p>
+<p>Pontuação total: <strong id="pontosFinal">0</strong></p>
+<button id="btnProximaFase" class="btn-principal">➡ Próxima Fase</button>
+</div>
+</section>
 <!
 -TELA FINAL -->
-<section id="tela-final" class="tela">
-<div class="card-final">
-<div id="emoji-final" class="emoji-final">🏆</div>
-<h2 id="titulo-final">Parabéns!</h2>
-<p id="mensagem-final"></p>
-<div class="resultado-final">
-<div class="resultado-box">
-<span>⭐</span>
-<strong id="pontos-finais">0</strong>
-<small>Pontos</small>
-</div>
-<div class="resultado-box">
-<span>✅</span>
-<strong id="acertos-finais">0</strong>
-<small>Acertos</small>
-</div>
-<div class="resultado-box">
-<span>🎯</span>
-<strong id="precisao-final">0%</strong>
-<small>Precisão</small>
-</div>
-</div>
-<button id="btn-reiniciar" class="btn-principal">🔄 JOGAR NOVAMENTE</button>
+<section id="telaFinal" class="tela tela-overlay">
+<div class="card-pergunta">
+<h2 id="tituloFinal">🏆 Parabéns!</h2>
+<p id="mensagemFinal"></p>
+<p>Pontuação final: <strong id="pontuacaoFinal">0</strong></p>
+<button id="btnJogarNovamente" class="btn-principal">🔄 Jogar Novamente</button>
 </div>
 </section>
 </main>
-<footer class="rodape">
-<p>🌟 Projeto Educacional
-6º Ano do Ensino Fundamental 🌟</p>
-<p>Disciplina: Matemática | Tema: Operações e Números</p>
+<footer class="game-footer">
+<p>🌱 Jogo Educativo
+Ciências | 6º Ano do Ensino Fundamental</p>
 </footer>
 <script src="script.js"></script>
 </body>
