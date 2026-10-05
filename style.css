@@ -1,262 +1,482 @@
-// =========================================================
-// 🌱 EXPLORADORES BOTÂNICOS
-Lógica do Jogo
-// =========================================================
-// --------
--ESTADO GLOBAL ----------
-const estado = {
-pontos: 0,
-vidas: 3,
-fase: 1,
-missaoAtual: 0,
-missoesCompletas: 0,
-posicao: { x: 50, y: 100 },
-velocidade: 12,
-objetoProximo: null,
-emMovimento: false
-};
-// --------
--DADOS DAS FASES E MISSÕES ----------
-const fases = {
-1: {
-nome: 'Fácil',
-classe: 'fase-1',
-dica: '💡 Explore o jardim até encontrar o objeto brilhante!',
-missoes: [
-{
-icone: '🌱',
-titulo: 'Missão 1: A Raiz Mágica',
-posicao: { x: 300, y: 200 },
-pergunta: 'Qual é a principal função da RAIZ de uma planta?',
-alternativas: [
-'Produzir flores coloridas',
-'Absorver água e nutrientes do solo',
-'Realizar a fotossíntese',
-'Atrair insetos polinizadores'
-],
-correta: 1,
-explicacao: '✅ Isso mesmo! A raiz fixa a planta no solo e absorve água e sais minerais.'
-},
-{
-icone: '🌿',
-titulo: 'Missão 2: O Caule Viajante',
-posicao: { x: 550, y: 300 },
-pergunta: 'Qual é a função principal do CAULE?',
-alternativas: [
-'Realizar a fotossíntese',
-'Transportar água e nutrientes entre raiz e folhas',
-'Produzir sementes',
-'Absorver luz solar'
-],
-correta: 1,
-explicacao: '✅ Exato! O caule é como um "cano" que transporta água e nutrientes pela planta.'
-},
-{
-icone: '☀️',
-titulo: 'Missão 3: A Fábrica de Alimento',
-posicao: { x: 200, y: 350 },
-pergunta: 'Na FOTOSSÍNTESE, qual gás a planta ABSORVE do ar?',
-alternativas: [
-'Oxigênio (O₂)',
-'Nitrogênio (N₂)',
-'Gás Carbônico (CO₂)',
-'Hidrogênio (H₂)'
-],
-correta: 2,
-explicacao: '✅ Muito bem! A planta absorve CO₂ e libera O₂ durante a fotossíntese.'
-}
-]
-},
-2: {
-nome: 'Média',
-classe: 'fase-2',
-dica: '💡 A floresta é densa! Encontre as amostras escondidas entre as árvores.',
-missoes: [
-{
-icone: '🥕',
-titulo: 'Missão 1: Classificando Raízes',
-posicao: { x: 150, y: 250 },
-pergunta: 'A raiz da CENOURA, que armazena nutrientes, é do tipo:',
-alternativas: [
-'Pivotante',
-'Fasciculada',
-'Tuberosa',
-'Aérea'
-],
-correta: 2,
-explicacao: '✅ Isso! A raiz tuberosa armazena reservas, como na cenoura e na batata-doce.'
-},
-{
-icone: '🎋',
-titulo: 'Missão 2: Tipos de Caule',
-posicao: { x: 600, y: 150 },
-pergunta: 'O caule do BAMBU, oco e com nós, é classificado como:',
-alternativas: [
-'Tronco',
-'Colmo',
-'Rizoma',
-'Estipe'
-],
-correta: 1,
-explicacao: '✅ Correto! O colmo é o caule típico de bambus, cana-de-açúcar e milho.'
-},
-{
-icone: '🌿',
-titulo: 'Missão 3: Grupos Vegetais',
-posicao: { x: 400, y: 380 },
-pergunta: 'As plantas que NÃO possuem vasos condutores (xilema e floema) são chamadas de:',
-alternativas: [
-'Angiospermas',
-'Gimnospermas',
-'Pteridófitas',
-'Briófitas'
-],
-correta: 3,
-explicacao: '✅ Muito bem! As briófitas (como musgos) são avasculares e pequenas.'
-}
-]
-},
-3: {
-nome: 'Difícil',
-classe: 'fase-3',
-dica: '🔬 O laboratório é escuro! Resolva os mistérios científicos para avançar.',
-missoes: [
-{
-icone: '🧪',
-titulo: 'Missão 1: A Equação da Vida',
-posicao: { x: 250, y: 180 },
-pergunta: 'Qual é a equação CORRETA da fotossíntese?',
-alternativas: [
-'Glicose + O₂ → CO₂ + H₂O + Luz',
-'CO₂ + H₂O + Luz → Glicose + O₂',
-'O₂ + H₂O → CO₂ + Glicose',
-'CO₂ + Glicose → O₂ + H₂O'
-],
-correta: 1,
-explicacao: '✅ Perfeito! A planta usa CO₂, água e luz para produzir glicose e liberar O₂.'
-},
-{
-icone: '🐝',
-titulo: 'Missão 2: Agentes Polinizadores',
-posicao: { x: 620, y: 320 },
-pergunta: 'Qual destes NÃO é um agente polinizador natural?',
-alternativas: [
-'Abelhas',
-'Vento',
-'Morcegos',
-'Plástico'
-],
-correta: 3,
-explicacao: '✅ Isso! Polinizadores são seres vivos (animais, insetos) ou o vento/água.'
-},
-{
-icone: '🌰',
-titulo: 'Missão 3: Reprodução Vegetal',
-posicao: { x: 400, y: 400 },
-pergunta: 'A reprodução ASSEXUADA em plantas, que gera clones idênticos, ocorre por:',
-alternativas: [
-'Polinização cruzada',
-'Formação de sementes',
-'Estaquia e brotamento',
-'Fecundação'
-],
-correta: 2,
-explicacao: '✅ Exato! Est aquia, enxertia e brotamento geram plantas geneticamente iguais.'
-}
-]
-}
-};
-// --------
--ELEMENTOS DO DOM ----------
-const el = {
-telas: {
-inicial: document.getElementById('telaInicial'),
-instrucoes: document.getElementById('telaInstrucoes'),
-jogo: document.getElementById('telaJogo'),
-pergunta: document.getElementById('telaPergunta'),
-faseCompleta: document.getElementById('telaFaseCompleta'),
-final: document.getElementById('telaFinal')
-},
-pontos: document.getElementById('pontos'),
-vidas: document.getElementById('vidas'),
-faseAtual: document.getElementById('faseAtual'),
-faseNome: document.getElementById('faseNome'),
-mapa: document.getElementById('mapa'),
-personagem: document.getElementById('personagem'),
-dicaMissao: document.getElementById('dicaMissao'),
-perguntaTitulo: document.getElementById('perguntaTitulo'),
-perguntaTexto: document.getElementById('perguntaTexto'),
-alternativas: document.getElementById('alternativas'),
-feedback: document.getElementById('feedback'),
-missaoBadge: document.getElementById('missaoBadge'),
-pontosFinal: document.getElementById('pontosFinal'),
-msgFaseCompleta: document.getElementById('msgFaseCompleta'),
-tituloFinal: document.getElementById('tituloFinal'),
-mensagemFinal: document.getElementById('mensagemFinal'),
-pontuacaoFinal: document.getElementById('pontuacaoFinal')
-};
-// --------
--NAVEGAÇÃO ENTRE TELAS ----------
-function mostrarTela(nomeTela) {
-Object.values(el.telas).forEach(t => t.classList.remove('ativa'));
-el.telas[nomeTela].classList.add('ativa');
-}
-// --------
--INICIALIZAÇÃO DA FASE ----------
-function iniciarFase(numFase) {
-estado.fase = numFase;
-estado.missaoAtual = 0;
-estado.missoesCompletas = 0;
-estado.posicao = { x: 50, y: 100 };
-estado.objetoProximo = null;
-const dadosFase = fases[numFase];
-
-// Atualiza HUD
-el.faseAtual.textContent = numFase;
-el.faseNome.textContent = dadosFase.nome;
-el.dicaMissao.textContent = dadosFase.dica;
-
-// Configura mapa
-el.mapa.className = 'mapa ' + dadosFase.classe;
-
-// Remove objetos antigos
-document.querySelectorAll('.objeto-missao').forEach(o => o.remove());
-
-// Cria objetos das missões
-dadosFase.missoes.forEach((missao, index) => {
-const obj = document.createElement('div');
-obj.className = 'objeto-missao';
-obj.textContent = missao.icone;
-obj.style.left = missao.posicao.x + 'px';
-obj.style.top = missao.posicao.y + 'px';
-obj.dataset.indice = index;
-obj.addEventListener('click', () => tentarInteragir(index));
-el.mapa.appendChild(obj);
-});
-
-// Posiciona personagem
-atualizarPersonagem();
-
-mostrarTela('jogo');
+/* ===== RESET E BASE ===== */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
 }
 
-// --------
--ATUALIZAÇÃO DO PERSONAGEM ----------
-function atualizarPersonagem() {
-el.personagem.style.left = estado.posicao.x + 'px';
-el.personagem.style.top = estado.posicao.y + 'px';
-verificarProximidade();
+:root {
+--pastel-rosa: #FFD1DC;
+--pastel-azul: #AEC6CF;
+--pastel-verde: #B5EAD7;
+--pastel-amarelo: #FFF4B5;
+--pastel-lilas: #C7CEEA;
+--pastel-pessego: #FFDAB9;
+--pastel-menta: #D4F1E8;
+--texto-escuro: #4A4A6A;
+--texto-medio: #6B6B8A;
+--sombra: rgba(0, 0, 0, 0.1);
 }
-// --------
--MOVIMENTO ----------
-function moverPersonagem(direcao) {
-if (!el.telas.jogo.classList.contains('ativa')) return;
-if (el.telas.pergunta.classList.contains('ativa')) return;
-const limiteX = el.mapa.clientWidth
-50;
-const limiteY = el.mapa.clientHeight
-50;
-if (direcao === 'up' && estado.posicao.y > 0) estado.posicao.y -= estado.velocidade;
-if (direcao === 'down' && estado.posicao.y < limiteY) estado.posicao.y += estado.velocidade;
-if (direcao === 'left' && estado.posicao.x > 0) estado.posicao.x -= estado.velocidade;
-if
+
+body {
+font-family: 'Segoe UI', 'Comic Sans MS', Tahoma, sans-serif;
+background: linear-gradient(135deg, var(--pastel-menta) 0%, var(--pastel-lilas) 50%, var(--pastel-rosa) 100%);
+min-height: 100vh;
+color: var(--texto-escuro);
+display: flex;
+flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.game-header {
+background: linear-gradient(90deg, var(--pastel-verde), var(--pastel-azul));
+padding: 15px 20px;
+text-align: center;
+box-shadow: 0 4px 15px var(--sombra);
+border-bottom-left-radius: 20px;
+border-bottom-right-radius: 20px;
+}
+
+.game-header h1 {
+font-size: 1.8rem;
+color: var(--texto-escuro);
+text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.6);
+margin-bottom: 10px;
+}
+
+.hud {
+display: flex;
+justify-content: center;
+gap: 20px;
+flex-wrap: wrap;
+}
+
+.hud-item {
+background: rgba(255, 255, 255, 0.75);
+padding: 6px 16px;
+border-radius: 20px;
+font-weight: bold;
+font-size: 0.95rem;
+box-shadow: 0 2px 5px var(--sombra);
+}
+
+/* ===== TELAS ===== */
+main {
+flex: 1;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 20px;
+position: relative;
+}
+
+.tela {
+display: none;
+width: 100%;
+max-width: 900px;
+}
+
+.tela.ativa {
+display: block;
+}
+
+.tela-overlay {
+position: fixed;
+inset: 0;
+background: rgba(74, 74, 106, 0.65);
+backdrop-filter: blur(4px);
+z-index: 100;
+display: none;
+justify-content: center;
+align-items: center;
+padding: 20px;
+}
+
+.tela-overlay.ativa {
+display: flex;
+}
+
+/* ===== CARDS ===== */
+.card-inicial,
+.card-pergunta {
+background: #FFFDF9;
+padding: 35px;
+border-radius: 25px;
+text-align: center;
+box-shadow: 0 10px 30px var(--sombra);
+border: 4px solid var(--pastel-verde);
+max-width: 700px;
+margin: 0 auto;
+animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.card-inicial h2,
+.card-pergunta h2 {
+font-size: 1.6rem;
+margin-bottom: 15px;
+color: var(--texto-escuro);
+}
+
+.card-inicial p,
+.card-pergunta p {
+font-size: 1.05rem;
+line-height: 1.6;
+margin-bottom: 20px;
+color: var(--texto-medio);
+}
+
+/* ===== PERSONAGEM PREVIEW ===== */
+.personagem-preview {
+margin: 20px 0;
+}
+
+.personagem-grande {
+font-size: 5rem;
+display: inline-block;
+animation: flutuar 2.5s ease-in-out infinite;
+}
+
+@keyframes flutuar {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-10px); }
+}
+
+/* ===== BOTÕES ===== */
+.btn-principal,
+.btn-secundario {
+font-family: inherit;
+font-size: 1.1rem;
+font-weight: bold;
+padding: 14px 32px;
+border-radius: 30px;
+border: none;
+cursor: pointer;
+transition: all 0.25s ease;
+margin: 5px;
+box-shadow: 0 4px 10px var(--sombra);
+}
+
+.btn-principal {
+background: linear-gradient(135deg, var(--pastel-verde), #8FD4B6);
+color: var(--texto-escuro);
+}
+
+.btn-principal:hover {
+transform: translateY(-3px) scale(1.03);
+box-shadow: 0 8px 18px var(--sombra);
+}
+
+.btn-secundario {
+background: linear-gradient(135deg, var(--pastel-lilas), #A8B2DB);
+color: var(--texto-escuro);
+}
+
+.btn-secundario:hover {
+transform: translateY(-3px) scale(1.03);
+}
+
+/* ===== LISTA INSTRUÇÕES ===== */
+.lista-instrucoes {
+list-style: none;
+text-align: left;
+display: inline-block;
+margin-bottom: 20px;
+}
+
+.lista-instrucoes li {
+padding: 8px 0;
+font-size: 1rem;
+line-height: 1.5;
+}
+
+/* ===== MAPA ===== */
+.game-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 15px;
+}
+
+.mapa {
+position: relative;
+width: 100%;
+max-width: 800px;
+height: 500px;
+border-radius: 25px;
+border: 5px solid #FFFFFF;
+box-shadow: 0 10px 30px var(--sombra);
+overflow: hidden;
+background-size: cover;
+background-position: center;
+transition: background 0.6s ease;
+}
+
+/* Fundos por fase */
+.mapa.fase-1 {
+background: linear-gradient(180deg, #CDEFFF 0%, #B5EAD7 40%, #9DDDB8 100%);
+}
+.mapa.fase-1::before {
+content: "🌻 🌷 🌼 🌸";
+position: absolute;
+top: 10px;
+left: 20px;
+font-size: 2rem;
+opacity: 0.7;
+}
+.mapa.fase-1::after {
+content: "🌳 🌲 🌳";
+position: absolute;
+bottom: 15px;
+right: 20px;
+font-size: 2.5rem;
+opacity: 0.85;
+}
+
+.mapa.fase-2 {
+background: linear-gradient(180deg, #A8DDB5 0%, #7FBF8E 50%, #4F8A5C 100%);
+}
+.mapa.fase-2::before {
+content: "🌲 🌳 🌴 🌲 🌳";
+position: absolute;
+top: 10px;
+left: 15px;
+font-size: 2.5rem;
+opacity: 0.9;
+}
+.mapa.fase-2::after {
+content: "🍄 🌿 🍁 🌿 🍄";
+position: absolute;
+bottom: 15px;
+left: 30px;
+font-size: 1.8rem;
+opacity: 0.9;
+}
+
+.mapa.fase-3 {
+background: linear-gradient(180deg, #2E1A4D 0%, #4B2E6E 50%, #6B4A8E 100%);
+}
+.mapa.fase-3::before {
+content: "🧪 ⚗️ 🔬 🧫 🧬";
+position: absolute;
+top: 15px;
+left: 20px;
+font-size: 2rem;
+opacity: 0.85;
+}
+.mapa.fase-3::after {
+content: "💡 ✨ 🔭 📡 ✨ 💡";
+position: absolute;
+bottom: 15px;
+right: 20px;
+font-size: 1.8rem;
+opacity: 0.9;
+}
+
+/* ===== PERSONAGEM ===== */
+.personagem {
+position: absolute;
+font-size: 2.5rem;
+width: 50px;
+height: 50px;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: left 0.15s ease, top 0.15s ease;
+z-index: 10;
+filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
+}
+
+/* ===== OBJETOS DE MISSÃO ===== */
+.objeto-missao {
+position: absolute;
+font-size: 2.2rem;
+width: 45px;
+height: 45px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+z-index: 5;
+animation: brilhar 1.5s ease-in-out infinite;
+filter: drop-shadow(0 0 8px #FFF4B5);
+}
+
+.objeto-missao.completado {
+opacity: 0.25;
+animation: none;
+filter: grayscale(1);
+}
+
+@keyframes brilhar {
+0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px #FFF4B5); }
+50% { transform: scale(1.15); filter: drop-shadow(0 0 16px #FFD700); }
+}
+
+/* ===== DICA ===== */
+.dica-missao {
+background: rgba(255, 255, 255, 0.85);
+padding: 10px 20px;
+border-radius: 20px;
+font-weight: bold;
+color: var(--texto-escuro);
+box-shadow: 0 4px 10px var(--sombra);
+font-size: 1rem;
+}
+
+/* ===== CONTROLES MOBILE ===== */
+.controles-mobile {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 8px;
+margin-top: 10px;
+}
+
+.linha-meio {
+display: flex;
+gap: 8px;
+}
+
+.btn-dir {
+width: 55px;
+height: 55px;
+border-radius: 50%;
+border: none;
+background: rgba(255, 255, 255, 0.85);
+font-size: 1.4rem;
+color: var(--texto-escuro);
+cursor: pointer;
+box-shadow: 0 4px 8px var(--sombra);
+font-weight: bold;
+transition: all 0.15s ease;
+}
+
+.btn-dir:active {
+transform: scale(0.9);
+background: var(--pastel-amarelo);
+}
+
+.btn-interagir-mobile {
+padding: 10px 25px;
+border-radius: 20px;
+border: none;
+background: linear-gradient(135deg, var(--pastel-amarelo), #FFE066);
+font-weight: bold;
+font-size: 1rem;
+cursor: pointer;
+box-shadow: 0 4px 8px var(--sombra);
+font-family: inherit;
+}
+
+/* ===== PERGUNTAS ===== */
+.missao-badge {
+display: inline-block;
+background: var(--pastel-rosa);
+color: var(--texto-escuro);
+padding: 5px 18px;
+border-radius: 20px;
+font-weight: bold;
+font-size: 0.9rem;
+margin-bottom: 10px;
+}
+
+.alternativas {
+display: flex;
+flex-direction: column;
+gap: 10px;
+margin-top: 15px;
+}
+
+.btn-alternativa {
+font-family: inherit;
+font-size: 1rem;
+font-weight: 600;
+padding: 15px 20px;
+border-radius: 15px;
+border: 3px solid var(--pastel-azul);
+background: #FFFFFF;
+color: var(--texto-escuro);
+cursor: pointer;
+text-align: left;
+transition: all 0.2s ease;
+}
+
+.btn-alternativa:hover:not(:disabled) {
+background: var(--pastel-menta);
+transform: translateX(5px);
+border-color: var(--pastel-verde);
+}
+
+.btn-alternativa.correta {
+background: var(--pastel-verde);
+border-color: #6BC89D;
+animation: pulsar 0.5s ease;
+}
+
+.btn-alternativa.errada {
+background: #FFC9C9;
+border-color: #E88B8B;
+animation: tremer 0.4s ease;
+}
+
+.btn-alternativa:disabled {
+cursor: not-allowed;
+opacity: 0.9;
+}
+
+@keyframes pulsar {
+0% { transform: scale(1); }
+50% { transform: scale(1.05); }
+100% { transform: scale(1); }
+}
+
+@keyframes tremer {
+0%, 100% { transform: translateX(0); }
+25% { transform: translateX(-8px); }
+75% { transform: translateX(8px); }
+}
+
+.feedback {
+margin-top: 15px;
+font-weight: bold;
+font-size: 1.1rem;
+min-height: 25px;
+}
+
+.feedback.sucesso { color: #3A9D6E; }
+.feedback.erro { color: #C74A4A; }
+
+/* ===== FOOTER ===== */
+.game-footer {
+text-align: center;
+padding: 12px;
+background: rgba(255, 255, 255, 0.5);
+font-size: 0.9rem;
+color: var(--texto-medio);
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+.game-header h1 { font-size: 1.4rem; }
+.hud-item { font-size: 0.85rem; padding: 5px 12px; }
+.mapa { height: 400px; }
+.card-inicial, .card-pergunta { padding: 25px 20px; }
+.card-inicial h2, .card-pergunta h2 { font-size: 1.3rem; }
+.btn-principal, .btn-secundario { font-size: 1rem; padding: 12px 24px; }
+.personagem { font-size: 2rem; }
+.objeto-missao { font-size: 1.8rem; }
+}
+
+@media (max-width: 480px) {
+.mapa { height: 320px; }
+.btn-dir { width: 48px; height: 48px; font-size: 1.2rem; }
+}
+
+@media (min-width: 769px) {
+.controles-mobile { display: none; }
+}
