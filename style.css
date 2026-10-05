@@ -1,396 +1,262 @@
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
+// =========================================================
+// 🌱 EXPLORADORES BOTÂNICOS
+Lógica do Jogo
+// =========================================================
+// --------
+-ESTADO GLOBAL ----------
+const estado = {
+pontos: 0,
+vidas: 3,
+fase: 1,
+missaoAtual: 0,
+missoesCompletas: 0,
+posicao: { x: 50, y: 100 },
+velocidade: 12,
+objetoProximo: null,
+emMovimento: false
+};
+// --------
+-DADOS DAS FASES E MISSÕES ----------
+const fases = {
+1: {
+nome: 'Fácil',
+classe: 'fase-1',
+dica: '💡 Explore o jardim até encontrar o objeto brilhante!',
+missoes: [
+{
+icone: '🌱',
+titulo: 'Missão 1: A Raiz Mágica',
+posicao: { x: 300, y: 200 },
+pergunta: 'Qual é a principal função da RAIZ de uma planta?',
+alternativas: [
+'Produzir flores coloridas',
+'Absorver água e nutrientes do solo',
+'Realizar a fotossíntese',
+'Atrair insetos polinizadores'
+],
+correta: 1,
+explicacao: '✅ Isso mesmo! A raiz fixa a planta no solo e absorve água e sais minerais.'
+},
+{
+icone: '🌿',
+titulo: 'Missão 2: O Caule Viajante',
+posicao: { x: 550, y: 300 },
+pergunta: 'Qual é a função principal do CAULE?',
+alternativas: [
+'Realizar a fotossíntese',
+'Transportar água e nutrientes entre raiz e folhas',
+'Produzir sementes',
+'Absorver luz solar'
+],
+correta: 1,
+explicacao: '✅ Exato! O caule é como um "cano" que transporta água e nutrientes pela planta.'
+},
+{
+icone: '☀️',
+titulo: 'Missão 3: A Fábrica de Alimento',
+posicao: { x: 200, y: 350 },
+pergunta: 'Na FOTOSSÍNTESE, qual gás a planta ABSORVE do ar?',
+alternativas: [
+'Oxigênio (O₂)',
+'Nitrogênio (N₂)',
+'Gás Carbônico (CO₂)',
+'Hidrogênio (H₂)'
+],
+correta: 2,
+explicacao: '✅ Muito bem! A planta absorve CO₂ e libera O₂ durante a fotossíntese.'
+}
+]
+},
+2: {
+nome: 'Média',
+classe: 'fase-2',
+dica: '💡 A floresta é densa! Encontre as amostras escondidas entre as árvores.',
+missoes: [
+{
+icone: '🥕',
+titulo: 'Missão 1: Classificando Raízes',
+posicao: { x: 150, y: 250 },
+pergunta: 'A raiz da CENOURA, que armazena nutrientes, é do tipo:',
+alternativas: [
+'Pivotante',
+'Fasciculada',
+'Tuberosa',
+'Aérea'
+],
+correta: 2,
+explicacao: '✅ Isso! A raiz tuberosa armazena reservas, como na cenoura e na batata-doce.'
+},
+{
+icone: '🎋',
+titulo: 'Missão 2: Tipos de Caule',
+posicao: { x: 600, y: 150 },
+pergunta: 'O caule do BAMBU, oco e com nós, é classificado como:',
+alternativas: [
+'Tronco',
+'Colmo',
+'Rizoma',
+'Estipe'
+],
+correta: 1,
+explicacao: '✅ Correto! O colmo é o caule típico de bambus, cana-de-açúcar e milho.'
+},
+{
+icone: '🌿',
+titulo: 'Missão 3: Grupos Vegetais',
+posicao: { x: 400, y: 380 },
+pergunta: 'As plantas que NÃO possuem vasos condutores (xilema e floema) são chamadas de:',
+alternativas: [
+'Angiospermas',
+'Gimnospermas',
+'Pteridófitas',
+'Briófitas'
+],
+correta: 3,
+explicacao: '✅ Muito bem! As briófitas (como musgos) são avasculares e pequenas.'
+}
+]
+},
+3: {
+nome: 'Difícil',
+classe: 'fase-3',
+dica: '🔬 O laboratório é escuro! Resolva os mistérios científicos para avançar.',
+missoes: [
+{
+icone: '🧪',
+titulo: 'Missão 1: A Equação da Vida',
+posicao: { x: 250, y: 180 },
+pergunta: 'Qual é a equação CORRETA da fotossíntese?',
+alternativas: [
+'Glicose + O₂ → CO₂ + H₂O + Luz',
+'CO₂ + H₂O + Luz → Glicose + O₂',
+'O₂ + H₂O → CO₂ + Glicose',
+'CO₂ + Glicose → O₂ + H₂O'
+],
+correta: 1,
+explicacao: '✅ Perfeito! A planta usa CO₂, água e luz para produzir glicose e liberar O₂.'
+},
+{
+icone: '🐝',
+titulo: 'Missão 2: Agentes Polinizadores',
+posicao: { x: 620, y: 320 },
+pergunta: 'Qual destes NÃO é um agente polinizador natural?',
+alternativas: [
+'Abelhas',
+'Vento',
+'Morcegos',
+'Plástico'
+],
+correta: 3,
+explicacao: '✅ Isso! Polinizadores são seres vivos (animais, insetos) ou o vento/água.'
+},
+{
+icone: '🌰',
+titulo: 'Missão 3: Reprodução Vegetal',
+posicao: { x: 400, y: 400 },
+pergunta: 'A reprodução ASSEXUADA em plantas, que gera clones idênticos, ocorre por:',
+alternativas: [
+'Polinização cruzada',
+'Formação de sementes',
+'Estaquia e brotamento',
+'Fecundação'
+],
+correta: 2,
+explicacao: '✅ Exato! Est aquia, enxertia e brotamento geram plantas geneticamente iguais.'
+}
+]
+}
+};
+// --------
+-ELEMENTOS DO DOM ----------
+const el = {
+telas: {
+inicial: document.getElementById('telaInicial'),
+instrucoes: document.getElementById('telaInstrucoes'),
+jogo: document.getElementById('telaJogo'),
+pergunta: document.getElementById('telaPergunta'),
+faseCompleta: document.getElementById('telaFaseCompleta'),
+final: document.getElementById('telaFinal')
+},
+pontos: document.getElementById('pontos'),
+vidas: document.getElementById('vidas'),
+faseAtual: document.getElementById('faseAtual'),
+faseNome: document.getElementById('faseNome'),
+mapa: document.getElementById('mapa'),
+personagem: document.getElementById('personagem'),
+dicaMissao: document.getElementById('dicaMissao'),
+perguntaTitulo: document.getElementById('perguntaTitulo'),
+perguntaTexto: document.getElementById('perguntaTexto'),
+alternativas: document.getElementById('alternativas'),
+feedback: document.getElementById('feedback'),
+missaoBadge: document.getElementById('missaoBadge'),
+pontosFinal: document.getElementById('pontosFinal'),
+msgFaseCompleta: document.getElementById('msgFaseCompleta'),
+tituloFinal: document.getElementById('tituloFinal'),
+mensagemFinal: document.getElementById('mensagemFinal'),
+pontuacaoFinal: document.getElementById('pontuacaoFinal')
+};
+// --------
+-NAVEGAÇÃO ENTRE TELAS ----------
+function mostrarTela(nomeTela) {
+Object.values(el.telas).forEach(t => t.classList.remove('ativa'));
+el.telas[nomeTela].classList.add('ativa');
+}
+// --------
+-INICIALIZAÇÃO DA FASE ----------
+function iniciarFase(numFase) {
+estado.fase = numFase;
+estado.missaoAtual = 0;
+estado.missoesCompletas = 0;
+estado.posicao = { x: 50, y: 100 };
+estado.objetoProximo = null;
+const dadosFase = fases[numFase];
+
+// Atualiza HUD
+el.faseAtual.textContent = numFase;
+el.faseNome.textContent = dadosFase.nome;
+el.dicaMissao.textContent = dadosFase.dica;
+
+// Configura mapa
+el.mapa.className = 'mapa ' + dadosFase.classe;
+
+// Remove objetos antigos
+document.querySelectorAll('.objeto-missao').forEach(o => o.remove());
+
+// Cria objetos das missões
+dadosFase.missoes.forEach((missao, index) => {
+const obj = document.createElement('div');
+obj.className = 'objeto-missao';
+obj.textContent = missao.icone;
+obj.style.left = missao.posicao.x + 'px';
+obj.style.top = missao.posicao.y + 'px';
+obj.dataset.indice = index;
+obj.addEventListener('click', () => tentarInteragir(index));
+el.mapa.appendChild(obj);
+});
+
+// Posiciona personagem
+atualizarPersonagem();
+
+mostrarTela('jogo');
 }
 
-body {
-font-family: 'Fredoka', sans-serif;
-background: linear-gradient(135deg, #1a1a4e 0%, #2d1b69 50%, #4a1e8c 100%);
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-color: #fff;
-overflow-x: hidden;
-position: relative;
+// --------
+-ATUALIZAÇÃO DO PERSONAGEM ----------
+function atualizarPersonagem() {
+el.personagem.style.left = estado.posicao.x + 'px';
+el.personagem.style.top = estado.posicao.y + 'px';
+verificarProximidade();
 }
-
-/* Estrelas animadas */
-.estrelas {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-pointer-events: none;
-z-index: 0;
-}
-
-.estrela {
-position: absolute;
-background: #fff;
-border-radius: 50%;
-animation: brilhar 2s infinite;
-}
-
-@keyframes brilhar {
-0%, 100% { opacity: 0.3; transform: scale(1); }
-50% { opacity: 1; transform: scale(1.3); }
-}
-
-/* Cabeçalho */
-.cabecalho {
-text-align: center;
-padding: 1.5rem 1rem;
-position: relative;
-z-index: 1;
-}
-
-.cabecalho h1 {
-font-size: clamp(1.8rem, 5vw, 3rem);
-color: #FFD93D;
-text-shadow: 3px 3px 0 #FF6B9D, 6px 6px 15px rgba(0,0,0,0.5);
-letter-spacing: 2px;
-margin-bottom: 0.5rem;
-}
-
-.subtitulo {
-color: #A0E7E5;
-font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-}
-
-/* Container principal */
-.container {
-flex: 1;
-display: flex;
-justify-content: center;
-align-items: center;
-padding: 1rem;
-position: relative;
-z-index: 1;
-}
-
-/* Telas */
-.tela {
-display: none;
-width: 100%;
-max-width: 700px;
-animation: aparecer 0.5s ease;
-}
-
-.tela.ativa {
-display: block;
-}
-
-@keyframes aparecer {
-from { opacity: 0; transform: translateY(30px) scale(0.95); }
-to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* Card Inicial */
-.card-inicio, .card-pergunta, .card-final {
-background: rgba(255, 255, 255, 0.1);
-backdrop-filter: blur(20px);
-border: 3px solid rgba(255, 217, 61, 0.5);
-border-radius: 30px;
-padding: clamp(1.5rem, 4vw, 2.5rem);
-box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 0 60px rgba(255,255,255,0.05);
-text-align: center;
-}
-
-.astro-grande {
-font-size: clamp(4rem, 12vw, 6rem);
-animation: flutuar 3s ease-in-out infinite;
-margin-bottom: 1rem;
-}
-
-.astro-pequeno {
-font-size: 3rem;
-margin-bottom: 1rem;
-animation: flutuar 3s ease-in-out infinite;
-}
-
-@keyframes flutuar {
-0%, 100% { transform: translateY(0) rotate(-5deg); }
-50% { transform: translateY(-15px) rotate(5deg); }
-}
-
-.card-inicio h2, .card-final h2 {
-color: #FFD93D;
-font-size: clamp(1.4rem, 4vw, 2rem);
-margin-bottom: 1rem;
-}
-
-.card-inicio p, .card-final p {
-color: #E0E0FF;
-font-size: clamp(0.95rem, 2.5vw, 1.1rem);
-line-height: 1.6;
-margin-bottom: 1rem;
-}
-
-.regras {
-background: rgba(255, 107, 157, 0.15);
-border: 2px dashed #FF6B9D;
-border-radius: 20px;
-padding: 1.2rem;
-margin: 1.5rem 0;
-text-align: left;
-}
-
-.regras h3 {
-color: #FF6B9D;
-margin-bottom: 0.8rem;
-font-size: 1.1rem;
-}
-
-.regras ul {
-list-style: none;
-}
-
-.regras li {
-padding: 0.4rem 0;
-color: #E0E0FF;
-font-size: clamp(0.9rem, 2.3vw, 1rem);
-}
-
-/* Botão principal */
-.btn-principal {
-background: linear-gradient(135deg, #FFD93D 0%, #FF9500 100%);
-color: #1a1a4e;
-border: none;
-padding: 1rem 2.5rem;
-font-size: clamp(1rem, 3vw, 1.3rem);
-font-weight: 700;
-font-family: 'Fredoka', sans-serif;
-border-radius: 50px;
-cursor: pointer;
-box-shadow: 0 8px 0 #B36200, 0 12px 25px rgba(0,0,0,0.3);
-transition: all 0.15s ease;
-letter-spacing: 1px;
-margin-top: 1rem;
-}
-
-.btn-principal:hover {
-transform: translateY(-3px);
-box-shadow: 0 11px 0 #B36200, 0 15px 30px rgba(0,0,0,0.4);
-filter: brightness(1.1);
-}
-
-.btn-principal:active {
-transform: translateY(5px);
-box-shadow: 0 3px 0 #B36200;
-}
-
-/* Painel de informações */
-.painel-info {
-display: flex;
-justify-content: space-around;
-gap: 0.5rem;
-margin-bottom: 1rem;
-flex-wrap: wrap;
-}
-
-.info-box {
-background: rgba(255, 255, 255, 0.15);
-border: 2px solid rgba(160, 231, 229, 0.5);
-border-radius: 15px;
-padding: 0.6rem 1rem;
-display: flex;
-align-items: center;
-gap: 0.5rem;
-font-size: clamp(0.8rem, 2.2vw, 1rem);
-backdrop-filter: blur(10px);
-}
-
-.info-box strong {
-color: #FFD93D;
-font-size: 1.1em;
-}
-
-.icone {
-font-size: 1.2em;
-}
-
-#vidas {
-letter-spacing: 2px;
-font-size: 1.1em;
-}
-
-/* Barra de progresso */
-.barra-progresso {
-width: 100%;
-height: 15px;
-background: rgba(0, 0, 0, 0.3);
-border-radius: 10px;
-overflow: hidden;
-margin-bottom: 1.5rem;
-border: 2px solid rgba(160, 231, 229, 0.3);
-}
-
-.progresso {
-height: 100%;
-width: 0%;
-background: linear-gradient(90deg, #A0E7E5 0%, #FFD93D 50%, #FF6B9D 100%);
-border-radius: 10px;
-transition: width 0.5s ease;
-box-shadow: 0 0 15px rgba(255, 217, 61, 0.6);
-}
-
-/* Card Pergunta */
-#pergunta {
-color: #fff;
-font-size: clamp(1.2rem, 3.5vw, 1.6rem);
-margin: 1rem 0 1.5rem;
-line-height: 1.4;
-}
-
-.opcoes {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-gap: 0.8rem;
-margin-bottom: 1rem;
-}
-
-.btn-opcao {
-background: rgba(160, 231, 229, 0.2);
-border: 3px solid #A0E7E5;
-color: #fff;
-padding: 1rem;
-font-size: clamp(1rem, 3vw, 1.3rem);
-font-weight: 600;
-font-family: 'Fredoka', sans-serif;
-border-radius: 20px;
-cursor: pointer;
-transition: all 0.2s ease;
-min-height: 65px;
-}
-
-.btn-opcao:hover:not(:disabled) {
-background: rgba(160, 231, 229, 0.4);
-transform: translateY(-3px) scale(1.02);
-box-shadow: 0 8px 20px rgba(160, 231, 229, 0.4);
-}
-
-.btn-opcao:disabled {
-cursor: not-allowed;
-opacity: 0.7;
-}
-
-.btn-opcao.correto {
-background: #4CAF50 !important;
-border-color: #2E7D32 !important;
-animation: pulsar 0.5s ease;
-}
-
-.btn-opcao.errado {
-background: #E53935 !important;
-border-color: #B71C1C !important;
-animation: tremer 0.5s ease;
-}
-
-@keyframes pulsar {
-0%, 100% { transform: scale(1); }
-50% { transform: scale(1.08); }
-}
-
-@keyframes tremer {
-0%, 100% { transform: translateX(0); }
-25% { transform: translateX(-10px); }
-75% { transform: translateX(10px); }
-}
-
-/* Feedback */
-.feedback {
-font-size: clamp(1rem, 3vw, 1.3rem);
-font-weight: 700;
-min-height: 40px;
-margin-top: 1rem;
-transition: all 0.3s ease;
-}
-
-.feedback.acerto {
-color: #4CAF50;
-animation: aparecer 0.4s ease;
-}
-
-.feedback.erro {
-color: #FF6B9D;
-animation: aparecer 0.4s ease;
-}
-
-/* Card Final */
-.emoji-final {
-font-size: clamp(5rem, 15vw, 8rem);
-animation: flutuar 2s ease-in-out infinite;
-margin-bottom: 1rem;
-}
-
-.resultado-final {
-display: flex;
-justify-content: space-around;
-gap: 1rem;
-margin: 2rem 0;
-flex-wrap: wrap;
-}
-
-.resultado-box {
-background: rgba(255, 217, 61, 0.15);
-border: 2px solid #FFD93D;
-border-radius: 20px;
-padding: 1rem 1.5rem;
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 0.3rem;
-flex: 1;
-min-width: 100px;
-}
-
-.resultado-box span {
-font-size: 1.8rem;
-}
-
-.resultado-box strong {
-font-size: clamp(1.3rem, 4vw, 1.8rem);
-color: #FFD93D;
-}
-
-.resultado-box small {
-color: #A0E7E5;
-font-size: 0.85rem;
-}
-
-/* Rodapé */
-.rodape {
-text-align: center;
-padding: 1rem;
-color: #A0E7E5;
-font-size: clamp(0.75rem, 2vw, 0.9rem);
-position: relative;
-z-index: 1;
-}
-
-.rodape p {
-margin: 0.2rem 0;
-}
-
-/* Responsividade */
-@media (max-width: 480px) {
-.painel-info {
-gap: 0.3rem;
-}
-
-.info-box {
-padding: 0.4rem 0.6rem;
-font-size: 0.75rem;
-}
-
-.opcoes {
-grid-template-columns: 1fr;
-}
-
-.btn-principal {
-padding: 0.9rem 1.8rem;
-width: 100%;
-}
-}
+// --------
+-MOVIMENTO ----------
+function moverPersonagem(direcao) {
+if (!el.telas.jogo.classList.contains('ativa')) return;
+if (el.telas.pergunta.classList.contains('ativa')) return;
+const limiteX = el.mapa.clientWidth
+50;
+const limiteY = el.mapa.clientHeight
+50;
+if (direcao === 'up' && estado.posicao.y > 0) estado.posicao.y -= estado.velocidade;
+if (direcao === 'down' && estado.posicao.y < limiteY) estado.posicao.y += estado.velocidade;
+if (direcao === 'left' && estado.posicao.x > 0) estado.posicao.x -= estado.velocidade;
+if
